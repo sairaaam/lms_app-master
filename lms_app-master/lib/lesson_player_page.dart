@@ -124,8 +124,9 @@ class _LessonPlayerPageState extends State<LessonPlayerPage> {
             initialUrlRequest: URLRequest(
               url: WebUri("https://play.gumlet.io/embed/$videoId"),
               headers: {
-                'Referer':
-                    'https://lms.gdcollege.ca/', // Mandatory for authorization
+                // This MUST match one of the entries in your Gumlet Whitelist
+                'Referer': 'https://lms.gdcollege.ca/',
+                'Origin': 'https://lms.gdcollege.ca/',
               },
             ),
             initialSettings: InAppWebViewSettings(

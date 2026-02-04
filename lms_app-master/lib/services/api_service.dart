@@ -144,6 +144,7 @@ class ApiService {
     }
     return null;
   }
+
   /* =====================================================
    * 5. MARK AS COMPLETE
    * ===================================================== */
@@ -164,6 +165,25 @@ class ApiService {
       debugPrint("Completion Error: $e");
     }
     return false;
+  }
+
+  /* =====================================================
+   * 6. DEBUG ENROLLMENT (TEMPORARY - Remove after fixing)
+   * ===================================================== */
+
+  Future<void> debugEnrollment() async {
+    try {
+      final response = await http.get(
+        Uri.parse("$baseUrl/$customNamespace/debug-enrollment"),
+        headers: _headers,
+      );
+
+      debugPrint("========== ENROLLMENT DEBUG ==========");
+      debugPrint(response.body);
+      debugPrint("======================================");
+    } catch (e) {
+      debugPrint("Debug Error: $e");
+    }
   }
 }
 
