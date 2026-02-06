@@ -27,7 +27,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
 
     setState(() => _isLoading = true);
     
-    // Using the native API call instead of WebView
+    // Using native API call instead of WebView
     bool success = await apiService.requestPasswordReset(email);
 
     if (mounted) {

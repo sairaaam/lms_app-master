@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'services/api_service.dart';
 import 'enrolled_courses_page.dart';
-import 'profile_page.dart'; // Ensure this file exists and is correct
+import 'profile_page.dart';
 
 class DashboardPage extends StatefulWidget {
   const DashboardPage({super.key});
@@ -60,11 +60,35 @@ class _DashboardHomeContentState extends State<DashboardHomeContent> {
   }
 
   Future<void> _loadStats() async {
+    if (!mounted) return;
     setState(() => _isLoading = true);
-    final res = await apiService.getDashboardStats();
+    
+    // Fetch the list of courses which includes progress percentage
+    final List<dynamic> courses = await apiService.getEnrolledCourses();
+    
     if (mounted) {
+      int enrolledCount = courses.length;
+      int finishedCount = 0;
+      int inProgressCount = 0;
+
+      for (var course in courses) {
+        // Safe parsing of progress as num (int or double)
+        num progress = course['progress'] ?? 0;
+
+        if (progress >= 100) {
+          finishedCount++;
+        } else {
+          // Logic: If it's less than 100%, it counts as "In Progress"
+          inProgressCount++;
+        }
+      }
+
       setState(() {
-        stats = res;
+        stats = {
+          'enrolled': enrolledCount,
+          'active': inProgressCount,
+          'completed': finishedCount,
+        };
         _isLoading = false;
       });
     }
@@ -76,9 +100,10 @@ class _DashboardHomeContentState extends State<DashboardHomeContent> {
     String name = user?['user_display_name'] ?? "Student";
 
     return _isLoading
-        ? const Center(child: CircularProgressIndicator())
+        ? const Center(child: CircularProgressIndicator(color: Color(0xFF6D391E)))
         : RefreshIndicator(
             onRefresh: _loadStats,
+            color: const Color(0xFF6D391E),
             child: SingleChildScrollView(
               physics: const AlwaysScrollableScrollPhysics(),
               padding: const EdgeInsets.all(24),
@@ -91,14 +116,14 @@ class _DashboardHomeContentState extends State<DashboardHomeContent> {
                   ),
                   Text(
                     "Welcome back, $name",
-                    style: const TextStyle(color: Colors.grey),
+                    style: const TextStyle(color: Colors.grey, fontSize: 16),
                   ),
                   const SizedBox(height: 30),
                   _buildStatCard(
-                    "Enrolled",
+                    "Enrolled Courses",
                     stats['enrolled']!,
                     Icons.collections_bookmark,
-                    Colors.blue,
+                    const Color(0xFF6D391E),
                   ),
                   _buildStatCard(
                     "In Progress",
@@ -123,22 +148,30 @@ class _DashboardHomeContentState extends State<DashboardHomeContent> {
       margin: const EdgeInsets.only(bottom: 16),
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-       color: const Color.fromARGB(255, 219, 197, 197).withValues(alpha: 0.8),
+        color: const Color(0xFFF9F3E7),
         borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: color.withOpacity(0.1)),
       ),
       child: Row(
         children: [
-          Icon(icon, color: color, size: 30),
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: color.withOpacity(0.1),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(icon, color: color, size: 26),
+          ),
           const SizedBox(width: 20),
           Text(
             title,
-            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
           ),
           const Spacer(),
           Text(
             count.toString(),
             style: TextStyle(
-              fontSize: 24,
+              fontSize: 26,
               fontWeight: FontWeight.bold,
               color: color,
             ),
